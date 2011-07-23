@@ -1,7 +1,7 @@
-#define LED 9 // the pin for the LED
+#define LED 9
 
 const int numSensors = 2;
-const int numReadings = 20;
+const int numReadings = 10;
 
 int readings[numSensors][numReadings];
 int index[numSensors];                  // the index of the current reading
