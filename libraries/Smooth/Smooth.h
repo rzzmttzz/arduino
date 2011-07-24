@@ -3,6 +3,8 @@
 
 #include "WProgram.h"
 
+#define NUM_READINGS 10
+
 class Smooth {
 	public:
     		Smooth(int pin);
@@ -10,7 +12,7 @@ class Smooth {
 	private:
 		int _pin;
 		int _numReadings;
-    		int _readings[10];
+    		int _readings[NUM_READINGS];
 		int _index;
 		int _total;
 		int _average;		
