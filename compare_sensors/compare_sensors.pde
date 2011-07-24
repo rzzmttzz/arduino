@@ -15,7 +15,7 @@ void loop() {
   // read smoothed analog signals
   int val0 = analog0.smoothedAnalogRead();
   int val1 = analog1.smoothedAnalogRead();
-   //Serial.println(val1);
+
   // compare the two sensors 
   if(val0 < val1) {
     digitalWrite(OUT, HIGH); 
