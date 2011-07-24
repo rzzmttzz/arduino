@@ -2,8 +2,8 @@
 
 #define LED 9
 
-Smooth analog0(0);
-Smooth analog1(1);
+Smooth analog0(A0);
+Smooth analog1(A1);
 
 void setup() {
   pinMode(LED, OUTPUT); 
