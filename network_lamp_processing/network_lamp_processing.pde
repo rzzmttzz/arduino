@@ -2,19 +2,21 @@
 // parts of the code are inspired
 // by a blog post by Tod E. Kurt (todbot.com)
 import processing.serial.*;
+
 String feed = "http://blog.makezine.com/index.xml";
 int interval = 10; // retrieve feed every 60 seconds;
 int lastTime; // the last time we fetched the content
 int love = 0;
 int peace = 0;
 int arduino = 0;
-int light = 0;
-// light level measured by the lamp
+int light = 0; // light level measured by the lamp
+
 Serial port;
 color c;
 String cs;
 String buffer = ""; // Accumulates characters coming from Arduino
 PFont font;
+
 void setup() {
   size(640, 480);
   frameRate(10);
@@ -36,6 +38,7 @@ void setup() {
   lastTime = 0;
   fetchData();
 }
+
 void draw() {
   background( c );
   int n = (interval - ((millis()-lastTime)/1000));
@@ -91,6 +94,7 @@ void draw() {
     }
   }
 }
+
 void fetchData() {
   // we use these strings to parse the feed
   String data;
