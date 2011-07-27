@@ -21,14 +21,15 @@ void loop() {
   Serial.println(sensorValue,DEC);
   
   // check if there is data waiting
-  if (Serial.available()) {
+  // read all available data from serial port
+  while (Serial.available()) {
     // read a byte of serial data (0-255)
     ledBrightness = Serial.read();
+    
+    // set led brightness
+    analogWrite(LED, ledBrightness);
   }
-  
-  // set led brightness
-  analogWrite(LED, ledBrightness);
-  
+
   // wait 1 second
   delay(1000);
 }
