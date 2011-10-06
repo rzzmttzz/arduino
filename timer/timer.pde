@@ -34,7 +34,7 @@ void setup() {
 void loop() {
   current_millis_value = millis();
   if (current_millis_value < previous_millis_value)
-     m += MAX_MILLIS_VALUE - previous_millis_value + current_millis_value;
+    m += MAX_MILLIS_VALUE - previous_millis_value + current_millis_value;
   else 
     m += current_millis_value - previous_millis_value; 
   seconds += m / 1000;

@@ -12,7 +12,7 @@
 LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
 
 // timer variables
-unsigned int seconds = -1; // -1 since the interupt get called imediately 
+unsigned int seconds = 0;
 unsigned int minutes = 0;
 unsigned int hours = 0;
 
@@ -20,6 +20,7 @@ unsigned int hours = 0;
 String menu[3] = {"Feta","Brie","Yogurt"};
 int selected = -1;
 int highlighted = 0;
+boolean started = false;
 
 
 void setup() {
@@ -42,14 +43,20 @@ void setup() {
  * This function is called every second by the timer1 interupt
  */
 void second() {
-  seconds++;
-  if(seconds == 60) {
-    minutes++;
-    seconds = 0;  
-  }
-  if(minutes == 60) {
-     hours++;
-    minutes = 0; 
+  if(started) {
+    seconds++;
+    if(seconds == 60) {
+      minutes++;
+      seconds = 0;  
+    }
+    if(minutes == 60) {
+       hours++;
+      minutes = 0; 
+    }
+  } else {
+    hours = 0;
+    minutes = 0;
+    seconds = 0;
   }
 }
 
@@ -81,22 +88,28 @@ void buttons() {
   // ok button
   reading = digitalRead(OK_BUTTON);
   if (reading == HIGH) {
-    digitalWrite(LED, HIGH);
-  } else {
-    digitalWrite(LED, LOW);
+    // if the program is selected but not started, then start it
+    if(selected != -1 && !started) {
+      started = true;
+    }
+    // if no program is selected, then select the highlighted program
+    if(selected == -1) {
+      selected = highlighted;
+    }
   }
   
   // cancel button
   reading = digitalRead(CANCEL_BUTTON);
   if (reading == HIGH) {
-    digitalWrite(LED, HIGH);
-  } else {
-    digitalWrite(LED, LOW);
+    // if the selected program has not been started, then go back to menu
+    if(selected != -1 && !started) {
+      selected = -1;
+    }
   }
 }
 
 /**
- * Thid funtion displays the screen
+ * This function displays to the screen
  */
 void display() {
   lcd.clear();
@@ -115,6 +128,11 @@ void display() {
   if(selected == -1) {
     // if no program is selected display the menu
     for(int i = 0; i < LCD_HEIGHT ;i++) {
+      
+      if(highlighted > LCD_HEIGHT-1) {
+        
+      }
+      
       // highlight the highlighted program
       if(i == highlighted) {
         lcd.setCursor(1, i);
@@ -128,12 +146,17 @@ void display() {
       }
     }
   } else {
-    lcd.setCursor(2, 0);
-    lcd.print(hours);
-    lcd.print(":");
-    lcd.print(minutes);
-    lcd.print(":");
-    lcd.print(seconds);
+    if(!started) {
+      lcd.setCursor(2, 0);
+      lcd.print("Make "+menu[selected]+"?");
+    } else {
+      lcd.setCursor(2, 0);
+      lcd.print(hours);
+      lcd.print(":");
+      lcd.print(minutes);
+      lcd.print(":");
+      lcd.print(seconds);
+    }
   }
   
   //lcd.setCursor(2, 1);
