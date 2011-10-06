@@ -1,11 +1,13 @@
 #include <LiquidCrystal.h>
-#include "TimerOne.h"
+#include <TimerOne.h>
+#include <pitches.h>
 
 #define UP_BUTTON 8
 #define DOWN_BUTTON 7
 #define OK_BUTTON 9
 #define CANCEL_BUTTON 10
 #define LED 13
+#define ALARM 6
 #define LCD_WIDTH 16
 #define LCD_HEIGHT 2
 
@@ -17,11 +19,14 @@ unsigned int minutes = 0;
 unsigned int hours = 0;
 
 // Navigation
-String menu[3] = {"Feta","Brie","Yogurt"};
+String menu[3] = {"Feta", "Brie", "Yogurt"};
 int selected = -1;
 int highlighted = 0;
 boolean started = false;
 
+// Alarm
+int notes[3] = {NOTE_C6,NOTE_E6,NOTE_G6};
+int current_note = 0;
 
 void setup() {
   pinMode(UP_BUTTON, INPUT); 
@@ -29,6 +34,7 @@ void setup() {
   pinMode(OK_BUTTON, INPUT); 
   pinMode(CANCEL_BUTTON, INPUT); 
   pinMode(LED, OUTPUT); 
+  pinMode(ALARM, OUTPUT); 
   
   // initialise the LCD
   lcd.begin(LCD_WIDTH, LCD_HEIGHT);
@@ -63,7 +69,10 @@ void second() {
 void loop() {
   buttons();
   display();
-  delay(100);
+  if(seconds+60*minutes > 1) {
+    alarm();
+  }
+  delay(200);
 }
 
 void buttons() {
@@ -101,7 +110,7 @@ void buttons() {
   // cancel button
   reading = digitalRead(CANCEL_BUTTON);
   if (reading == HIGH) {
-    // if the selected program has not been started, then go back to menu
+    // if the selected program has not been started, then deselect the selected program
     if(selected != -1 && !started) {
       selected = -1;
     }
@@ -161,4 +170,12 @@ void display() {
   
   //lcd.setCursor(2, 1);
   //lcd.print(highlighted);
+}
+
+void alarm() {
+  tone(ALARM, notes[current_note],200); 
+  current_note++;
+  if(current_note >= 3) {
+    current_note = 0;
+  }
 }
