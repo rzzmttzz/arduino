@@ -25,7 +25,9 @@ int highlighted = 0;
 boolean started = false;
 
 // Alarm
-int notes[3] = {NOTE_C6,NOTE_E6,NOTE_G6};
+// Alarm theory: http://www.anaes.med.usyd.edu.au/alarms/
+const int num_notes = 3;
+int notes[num_notes] = {NOTE_C7,NOTE_FS7,0};//,NOTE_C7,0,NOTE_FS7,NOTE_C7,0,0};
 int current_note = 0;
 
 void setup() {
@@ -175,7 +177,7 @@ void display() {
 void alarm() {
   tone(ALARM, notes[current_note],200); 
   current_note++;
-  if(current_note >= 3) {
+  if(current_note >= num_notes) {
     current_note = 0;
   }
 }
