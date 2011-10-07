@@ -1,7 +1,10 @@
 #include <LiquidCrystal.h>
 #include <TimerOne.h>
-#include <pitches.h>
+//#include <pitches.h>
 #include "programs.h"
+
+#define NOTE_C7  2093
+#define NOTE_FS7 2960
 
 #define UP_BUTTON 8
 #define DOWN_BUTTON 7
@@ -19,10 +22,14 @@ unsigned int seconds = 0;
 unsigned int minutes = 0;
 unsigned int hours = 0;
 
+//temperature variables
+int temperature = 0;
+
 // Navigation
 int selected = -1;
 int highlighted = 0;
 boolean started = false;
+int current_event = 0;
 
 // Alarm
 // Alarm theory: http://www.anaes.med.usyd.edu.au/alarms/
@@ -31,6 +38,7 @@ int notes[num_notes] = {NOTE_C7,NOTE_FS7,0};
 //int notes[num_notes] = {NOTE_C7,NOTE_FS7,NOTE_C7,0,NOTE_FS7,NOTE_C7,0,0};
 //int notes[num_notes] = {NOTE_C7,NOTE_C7,NOTE_C7,0,0};
 int current_note = 0;
+boolean alarmed = false;
 
 void setup() {
   pinMode(UP_BUTTON, INPUT); 
@@ -71,11 +79,9 @@ void second() {
 }
 
 void loop() {
+  alarm();
   buttons();
   display();
-  if(seconds+60*minutes > 1) {
-    alarm();
-  }
   delay(200);
 }
 
@@ -108,6 +114,20 @@ void buttons() {
     // if no program is selected, then select the highlighted program
     if(selected == -1) {
       selected = highlighted;
+    }
+    // if the alarm is triggered stop the alarm and increment the event
+    if(alarmed) {
+      alarmed = false;
+      // if not at the end of the program
+      if(current_event < programs[selected].length-1) {
+        current_event++;  
+      } else {
+        // otherwise reset all of the variables to display the menu again
+        selected = -1;
+        started = false;
+        current_event = 0;
+        highlighted = 0;
+      }
     }
   }
   
@@ -160,7 +180,10 @@ void display() {
       }
     }
   } else {
-    if(!started) {
+    if(alarmed) {
+      lcd.setCursor(2, 0);
+      lcd.print(programs[selected].events[current_event].data);
+    } else if(!started) {
       lcd.setCursor(2, 0);
       lcd.print("Make "+programs[selected].name+"?");
     } else {
@@ -174,13 +197,32 @@ void display() {
   }
   
   //lcd.setCursor(2, 1);
-  //lcd.print(highlighted);
+  //lcd.print(current_event);
 }
 
 void alarm() {
-  tone(ALARM, notes[current_note],200); 
-  current_note++;
-  if(current_note >= num_notes) {
-    current_note = 0;
+  if(started) {
+    if(programs[selected].type==TIMER) {
+      //if(programs[selected].events[current_event].hours != 0 && programs[selected].events[current_event].minutes != 0 && programs[selected].events[current_event].seconds != 0) {
+        if(programs[selected].events[current_event].hours <= hours && programs[selected].events[current_event].minutes <= minutes && programs[selected].events[current_event].seconds <= seconds) {
+          alarmed = true;
+        }
+      //} 
+    } else if(programs[selected].type==TEMPERATURE) {
+        if(programs[selected].events[current_event].temperature > temperature && programs[selected].events[current_event].compare == L) {
+          alarmed = true;
+        } else if(programs[selected].events[current_event].temperature < temperature && programs[selected].events[current_event].compare == G) {
+          alarmed = true;
+        }  
+    }
+  }
+  
+  // if alarmed play the alarm
+  if(alarmed) {
+    tone(ALARM, notes[current_note],200); 
+    current_note++;
+    if(current_note >= num_notes) {
+      current_note = 0;
+    }
   }
 }
