@@ -1,10 +1,7 @@
 #include <LiquidCrystal.h>
 #include <TimerOne.h>
-//#include <pitches.h>
+#include <Button.h>
 #include "programs.h"
-
-#define NOTE_C7  2093
-#define NOTE_FS7 2960
 
 #define UP_BUTTON 8
 #define DOWN_BUTTON 7
@@ -14,22 +11,25 @@
 #define ALARM 6
 #define LCD_WIDTH 16
 #define LCD_HEIGHT 2
+#define NOTE_C7 2093
+#define NOTE_FS7 2960
 
 LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
 
-// timer variables
+// Timer variables
 unsigned int seconds = 0;
 unsigned int minutes = 0;
 unsigned int hours = 0;
 
-//temperature variables
+// Temperature variables
 int temperature = 0;
 
-// Navigation
+// Navigation and statuses
 int selected = -1;
 int highlighted = 0;
 boolean started = false;
 int current_event = 0;
+boolean alarmed = false;
 
 // Alarm
 // Alarm theory: http://www.anaes.med.usyd.edu.au/alarms/
@@ -38,13 +38,15 @@ int notes[num_notes] = {NOTE_C7,NOTE_FS7,0};
 //int notes[num_notes] = {NOTE_C7,NOTE_FS7,NOTE_C7,0,NOTE_FS7,NOTE_C7,0,0};
 //int notes[num_notes] = {NOTE_C7,NOTE_C7,NOTE_C7,0,0};
 int current_note = 0;
-boolean alarmed = false;
+
+
+// Buttons
+Button upButton(UP_BUTTON);
+Button downButton(DOWN_BUTTON);
+Button okButton(OK_BUTTON);
+Button cancelButton(CANCEL_BUTTON);
 
 void setup() {
-  pinMode(UP_BUTTON, INPUT); 
-  pinMode(DOWN_BUTTON, INPUT); 
-  pinMode(OK_BUTTON, INPUT); 
-  pinMode(CANCEL_BUTTON, INPUT); 
   pinMode(LED, OUTPUT); 
   pinMode(ALARM, OUTPUT); 
   
@@ -86,27 +88,22 @@ void loop() {
 }
 
 void buttons() {
-  int reading;
-  
   // up button
-  reading = digitalRead(UP_BUTTON);
-  if (reading == HIGH) {
+  if (upButton.read() == HIGH) {
     if(highlighted > 0) {
       highlighted--;
     }
   } 
   
   // down button
-  reading = digitalRead(DOWN_BUTTON);
-  if (reading == HIGH) {
+  if (downButton.read() == HIGH) {
     if(highlighted < sizeof(programs)) {
       highlighted++;
     }
   }
   
   // ok button
-  reading = digitalRead(OK_BUTTON);
-  if (reading == HIGH) {
+  if (okButton.read() == HIGH) {
     // if the program is selected but not started, then start it
     if(selected != -1 && !started) {
       started = true;
@@ -132,8 +129,7 @@ void buttons() {
   }
   
   // cancel button
-  reading = digitalRead(CANCEL_BUTTON);
-  if (reading == HIGH) {
+  if (cancelButton.read() == HIGH) {
     // if the selected program has not been started, then deselect the selected program
     if(selected != -1 && !started) {
       selected = -1;
