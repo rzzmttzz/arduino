@@ -1,6 +1,7 @@
 #include <LiquidCrystal.h>
 #include <TimerOne.h>
 #include <pitches.h>
+#include "programs.h"
 
 #define UP_BUTTON 8
 #define DOWN_BUTTON 7
@@ -19,7 +20,6 @@ unsigned int minutes = 0;
 unsigned int hours = 0;
 
 // Navigation
-String menu[3] = {"Feta", "Brie", "Yogurt"};
 int selected = -1;
 int highlighted = 0;
 boolean started = false;
@@ -27,7 +27,9 @@ boolean started = false;
 // Alarm
 // Alarm theory: http://www.anaes.med.usyd.edu.au/alarms/
 const int num_notes = 3;
-int notes[num_notes] = {NOTE_C7,NOTE_FS7,0};//,NOTE_C7,0,NOTE_FS7,NOTE_C7,0,0};
+int notes[num_notes] = {NOTE_C7,NOTE_FS7,0};
+//int notes[num_notes] = {NOTE_C7,NOTE_FS7,NOTE_C7,0,NOTE_FS7,NOTE_C7,0,0};
+//int notes[num_notes] = {NOTE_C7,NOTE_C7,NOTE_C7,0,0};
 int current_note = 0;
 
 void setup() {
@@ -91,7 +93,7 @@ void buttons() {
   // down button
   reading = digitalRead(DOWN_BUTTON);
   if (reading == HIGH) {
-    if(highlighted < sizeof(menu)) {
+    if(highlighted < sizeof(programs)) {
       highlighted++;
     }
   }
@@ -140,6 +142,7 @@ void display() {
     // if no program is selected display the menu
     for(int i = 0; i < LCD_HEIGHT ;i++) {
       
+      // TODO keep selected program on screen byscrolling the list 
       if(highlighted > LCD_HEIGHT-1) {
         
       }
@@ -148,18 +151,18 @@ void display() {
       if(i == highlighted) {
         lcd.setCursor(1, i);
         lcd.print(">");
-        lcd.print(menu[i]);
+        lcd.print(programs[i].name);
         lcd.setCursor(LCD_WIDTH-2, i);
         lcd.print("<");
       } else {
         lcd.setCursor(2, i);
-        lcd.print(menu[i]);
+        lcd.print(programs[i].name);
       }
     }
   } else {
     if(!started) {
       lcd.setCursor(2, 0);
-      lcd.print("Make "+menu[selected]+"?");
+      lcd.print("Make "+programs[selected].name+"?");
     } else {
       lcd.setCursor(2, 0);
       lcd.print(hours);
