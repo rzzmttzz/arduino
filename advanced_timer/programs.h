@@ -20,18 +20,18 @@ struct Program {
 };
 
 Event feta[3] = {
-  {0,0,0,0,0,"feta start"},
-  {0,0,5,0,0,"feta one"},
-  {0,0,10,0,0,"feta finished"}
+  {0,0,0,0,0,"prepare stuff"},
+  {0,0,5,0,0,"do some stuff"},
+  {0,0,5,0,0,"feta is finished"}
 };
 
 Event brie[6] = {
   {0,0,0,0,0,"brie 1"},
   {0,0,5,0,0,"brie 2"},
-  {0,0,10,0,0,"brie 3"},
-  {0,0,15,0,0,"brie 4"},
-  {0,0,20,0,0,"brie 5"},
-  {0,0,25,0,0,"brie 6"},
+  {0,0,5,0,0,"brie 3"},
+  {0,0,5,0,0,"brie 4"},
+  {0,0,5,0,0,"brie 5"},
+  {0,0,5,0,0,"brie 6"},
 };
 
 Event yogurt[3] = {

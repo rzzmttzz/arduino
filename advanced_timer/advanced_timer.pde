@@ -25,10 +25,11 @@ unsigned int hours = 0;
 int temperature = 0;
 
 // Navigation and statuses
-int selected = -1;
+int program = -1;
 int highlighted = 0;
 boolean started = false;
-int current_event = 0;
+boolean showevent = false;
+int event = 0;
 boolean alarmed = false;
 
 // Alarm
@@ -81,8 +82,8 @@ void second() {
 }
 
 void loop() {
-  alarm();
   buttons();
+  alarm();
   display();
   delay(200);
 }
@@ -104,35 +105,51 @@ void buttons() {
   
   // ok button
   if (okButton.read() == HIGH) {
+    // button pressed while confirming program
     // if the program is selected but not started, then start it
-    if(selected != -1 && !started) {
+    if(program != -1 && !started) {
       started = true;
     }
+    // ok button pressed while in menu mode
     // if no program is selected, then select the highlighted program
-    if(selected == -1) {
-      selected = highlighted;
+    if(program == -1) {
+      program = highlighted;
     }
-    // if the alarm is triggered stop the alarm and increment the event
-    if(alarmed) {
-      alarmed = false;
+    
+    // ok button pressed while in showevent mode
+    if(showevent) {
+      showevent=false;
+      // reset the timer
+      hours = 0;
+      minutes = 0;
+      seconds = 0;
+      
       // if not at the end of the program
-      if(current_event < programs[selected].length-1) {
-        current_event++;  
+      if(event < programs[program].length-1) {
+        event++;  
       } else {
         // otherwise reset all of the variables to display the menu again
-        selected = -1;
-        started = false;
-        current_event = 0;
-        highlighted = 0;
+        reset();
       }
+      
+    }
+    // ok button pressed while in alarm mode
+    // must be after showevent
+    // if the alarm is triggered stop the alarm enable show event mode
+    if(alarmed) {
+      alarmed = false;
+      showevent = true;
     }
   }
   
   // cancel button
   if (cancelButton.read() == HIGH) {
     // if the selected program has not been started, then deselect the selected program
-    if(selected != -1 && !started) {
-      selected = -1;
+    if(program != -1 && !started) {
+      program = -1;
+    }
+    if(started) {
+      reset();
     }
   }
 }
@@ -143,71 +160,66 @@ void buttons() {
 void display() {
   lcd.clear();
   
-  // display the up, down, ok and cancel navigation
-  lcd.setCursor(0, 0);
-  lcd.print("^");
-  lcd.setCursor(0, LCD_HEIGHT-1);
-  lcd.print("v");
-  lcd.setCursor(LCD_WIDTH-1, 0);
-  lcd.print("y");
-  lcd.setCursor(LCD_WIDTH-1, LCD_HEIGHT-1);
-  lcd.print("n");
-  
-  
-  if(selected == -1) {
-    // if no program is selected display the menu
+  // if no program is program display the menu
+  if(program == -1) {
     for(int i = 0; i < LCD_HEIGHT ;i++) {
-      
-      // TODO keep selected program on screen byscrolling the list 
+      // TODO keep program program on screen byscrolling the list 
       if(highlighted > LCD_HEIGHT-1) {
         
       }
       
       // highlight the highlighted program
       if(i == highlighted) {
-        lcd.setCursor(1, i);
-        lcd.print(">");
-        lcd.print(programs[i].name);
-        lcd.setCursor(LCD_WIDTH-2, i);
-        lcd.print("<");
+        print(1, i, ">");
+        print(2, i, programs[i].name);
+        print(LCD_WIDTH-2, i, "<");
       } else {
-        lcd.setCursor(2, i);
-        lcd.print(programs[i].name);
+        print(2, i, programs[i].name);
       }
     }
+    navigation("^", "v", "y", "n");
   } else {
+    if(!started) {
+      print(0, 0, "Make "+programs[program].name+"?");
+      navigation("", "", "y", "n");
+    } 
     if(alarmed) {
-      lcd.setCursor(2, 0);
-      lcd.print(programs[selected].events[current_event].data);
-    } else if(!started) {
-      lcd.setCursor(2, 0);
-      lcd.print("Make "+programs[selected].name+"?");
-    } else {
-      lcd.setCursor(2, 0);
+      print(0, 0, "Next step!");
+      navigation("", "", ">", "");
+    }
+    if(showevent) {
+      print(0, 0, programs[program].events[event].data);
+      navigation("", "", ">", "");
+    } 
+    if(started && !alarmed and !showevent) {
+      lcd.setCursor(0, 0);
       lcd.print(hours);
       lcd.print(":");
       lcd.print(minutes);
       lcd.print(":");
       lcd.print(seconds);
+      navigation("", "", "", "x");
     }
   }
   
-  //lcd.setCursor(2, 1);
-  //lcd.print(current_event);
+  //print(2, 1, event);
 }
 
 void alarm() {
-  if(started) {
-    if(programs[selected].type==TIMER) {
-      //if(programs[selected].events[current_event].hours != 0 && programs[selected].events[current_event].minutes != 0 && programs[selected].events[current_event].seconds != 0) {
-        if(programs[selected].events[current_event].hours <= hours && programs[selected].events[current_event].minutes <= minutes && programs[selected].events[current_event].seconds <= seconds) {
+  // test if the alarm should sound
+  if(started && !showevent) {
+    if(programs[program].type==TIMER) {
+      print(0, 1, "check alarm");
+      // do not sound alarm on the first step
+      //if(event != 0) {
+        if(programs[program].events[event].hours <= hours && programs[program].events[event].minutes <= minutes && programs[program].events[event].seconds <= seconds) {
           alarmed = true;
         }
       //} 
-    } else if(programs[selected].type==TEMPERATURE) {
-        if(programs[selected].events[current_event].temperature > temperature && programs[selected].events[current_event].compare == L) {
+    } else if(programs[program].type==TEMPERATURE) {
+        if(programs[program].events[event].temperature > temperature && programs[program].events[event].compare == L) {
           alarmed = true;
-        } else if(programs[selected].events[current_event].temperature < temperature && programs[selected].events[current_event].compare == G) {
+        } else if(programs[program].events[event].temperature < temperature && programs[program].events[event].compare == G) {
           alarmed = true;
         }  
     }
@@ -221,4 +233,26 @@ void alarm() {
       current_note = 0;
     }
   }
+}
+
+// display naivigation
+void navigation(String tl, String bl, String tr, String br) {
+  print(0, 0, tl);
+  print(0, LCD_HEIGHT-1, bl);
+  print(LCD_WIDTH-1, 0, tr);
+  print(LCD_WIDTH-1, LCD_HEIGHT-1, br);
+}
+
+void print(int x, int y, String text) {
+  lcd.setCursor(x, y);
+  lcd.print(text);
+}
+
+void reset() {
+  program = -1;
+  started = false;
+  event = 0;
+  highlighted = 0;
+  showevent = false;
+  alarmed = false;
 }
