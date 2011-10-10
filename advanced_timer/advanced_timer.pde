@@ -221,10 +221,10 @@ void display() {
       navigation("", "", "y", "n");
     } else if(alarmed) {
       print(0, 0, "Next step!");
-      navigation("", "", ">", "");
+      navigation("", "", ">", "x");
     } else if(showevent) {
       print(0, 0, programs[program].events[event].data);
-      navigation("", "", ">", "");
+      navigation("", "", ">", "x");
     } else if(cancel) {
       print(0, 0, "Cancel?");
       navigation("", "", "y", "n");
