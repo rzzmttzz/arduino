@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <LiquidCrystal.h>
 #include <TimerOne.h>
 #include <Button.h>
@@ -9,10 +10,13 @@
 #define CANCEL_BUTTON 10
 #define LED 13
 #define ALARM 6
+#define THERMISTER 0
 #define LCD_WIDTH 16
 #define LCD_HEIGHT 2
 #define NOTE_C7 2093
 #define NOTE_FS7 2960
+#define CELCIUS 1
+#define FAHRENHEIT 2
 
 LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
 
@@ -22,7 +26,9 @@ unsigned int minutes = 0;
 unsigned int hours = 0;
 
 // Temperature variables
-int temperature = 0;
+float temperature = 0.0;
+// temperature mode
+int temperatureScale = CELCIUS;
 
 // Navigation and statuses
 int program = -1;
@@ -58,6 +64,8 @@ void setup() {
   // setup the timer and its interupt function
   Timer1.initialize(1000000);         
   Timer1.attachInterrupt(second);
+  
+  Serial.begin(9600);
 }
  
 /**
@@ -82,10 +90,29 @@ void second() {
 }
 
 void loop() {
+  readTemperature();
   buttons();
   alarm();
   display();
   delay(200);
+}
+
+void readTemperature() {
+  float thermister = analogRead(THERMISTER);
+  float voltage = thermister / 1024 * 5.0;
+  float resistance = (10000 * voltage) / (5.0 - voltage);
+  
+  float logcubed = log(resistance);
+  logcubed = logcubed * logcubed * logcubed;
+  float kelvin = 1.0 / (-7.5e-4 + 6.23e-4 * log(resistance) - 1.73e-6 * (logcubed));
+  
+  if(temperatureScale == CELCIUS) {
+    // Convert to Celcius
+    temperature = kelvin - 273.15;
+  } else if(temperatureScale == FAHRENHEIT) {
+    // Convert to Fahrenheit
+    temperature = (kelvin - 273.15) * 9.0/5.0 + 32.0;
+  }
 }
 
 void buttons() {
@@ -182,23 +209,30 @@ void display() {
     if(!started) {
       print(0, 0, "Make "+programs[program].name+"?");
       navigation("", "", "y", "n");
-    } 
-    if(alarmed) {
+    } else if(alarmed) {
       print(0, 0, "Next step!");
       navigation("", "", ">", "");
-    }
-    if(showevent) {
+    } else if(showevent) {
       print(0, 0, programs[program].events[event].data);
       navigation("", "", ">", "");
-    } 
-    if(started && !alarmed and !showevent) {
-      lcd.setCursor(0, 0);
-      lcd.print(hours);
-      lcd.print(":");
-      lcd.print(minutes);
-      lcd.print(":");
-      lcd.print(seconds);
-      navigation("", "", "", "x");
+    } else {
+      if(programs[program].type == TIMER) {
+        lcd.setCursor(0, 0);
+        lcd.print(hours);
+        lcd.print(":");
+        lcd.print(minutes);
+        lcd.print(":");
+        lcd.print(seconds);
+        navigation("", "", "", "x");
+      } else if(programs[program].type == TEMPERATURE) {
+        lcd.setCursor(0, 0);
+        lcd.print(temperature);
+        if(temperatureScale == CELCIUS) {
+          lcd.print(" C");
+        } else if(temperatureScale == FAHRENHEIT) {
+          lcd.print(" F");
+        }
+      }
     }
   }
   
@@ -209,8 +243,7 @@ void alarm() {
   // test if the alarm should sound
   if(started && !showevent) {
     if(programs[program].type==TIMER) {
-      print(0, 1, "check alarm");
-      // do not sound alarm on the first step
+      // do not sound alarm if the first step is at zero time
       //if(event != 0) {
         if(programs[program].events[event].hours <= hours && programs[program].events[event].minutes <= minutes && programs[program].events[event].seconds <= seconds) {
           alarmed = true;

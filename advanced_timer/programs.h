@@ -8,7 +8,7 @@ struct Event {
   int minutes;
   int seconds;
   int compare;
-  int temperature;
+  float temperature;
   String data;
 };
 
@@ -36,8 +36,8 @@ Event brie[6] = {
 
 Event yogurt[3] = {
   {0,0,0,L,100,"Put milk in a saucepan, place the temperature probe in the milk and heat on a medium heat."},
-  {0,0,0,G,84, "Cool the milk in a water bath."},
-  {0,0,0,L,44, "Put milk in jar, add the yogurt culture, mix and place in a warm place for 4-10 hours."}
+  {0,0,0,G,84.0, "Cool the milk in a water bath."},
+  {0,0,0,L,44.0, "Put milk in jar, add the yogurt culture, mix and place in a warm place for 4-10 hours."}
 };
 
 Program programs[3] = {
