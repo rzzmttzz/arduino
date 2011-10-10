@@ -90,6 +90,7 @@ void second() {
 }
 
 void loop() {
+  lcd.clear();
   readTemperature();
   buttons();
   alarm();
@@ -97,21 +98,34 @@ void loop() {
   delay(200);
 }
 
+// Utilizes the Steinhart-Hart Thermistor Equation:
+//    Temperature in Kelvin = 1 / {A + B[ln(R)] + C[ln(R)]^3}
+
 void readTemperature() {
-  float thermister = analogRead(THERMISTER);
-  float voltage = thermister / 1024 * 5.0;
-  float resistance = (10000 * voltage) / (5.0 - voltage);
+  int thermister = analogRead(THERMISTER);
+  long resistance;  double temp;  // Dual-Purpose variable to save space.
+  resistance=((10240000/thermister) - 10000);  // Assuming a 10k Thermistor.  Calculation is actually: Resistance = (1024 * BalanceResistor/ADC) - BalanceResistor
+  temp = log(resistance); // Saving the Log(resistance) so not to calculate it 4 times later. // "Temp" means "Temporary" on this line.
+  temp = 1 / (-0.033593997 + (0.0032009496 * temp) + (-8.627067e-7 * temp * temp * temp));   // Now it means both "Temporary" and "Temperature"
+  //temp = temp - 273.15;  // Convert Kelvin to Celsius                       
   
-  float logcubed = log(resistance);
-  logcubed = logcubed * logcubed * logcubed;
-  float kelvin = 1.0 / (-7.5e-4 + 6.23e-4 * log(resistance) - 1.73e-6 * (logcubed));
+
+  /*
+  float voltage = thermister / 1024 * 5.0;
+  float resistance = (10000 * voltage) / (5.0 - voltage);    
+  float temp = log(resistance);
+  temp = 1.0 / (-7.5e-4 + 6.23e-4 * log(resistance) - 1.73e-6 * (temp * temp * temp));
+  */
+  lcd.setCursor(7, 1);
+  lcd.print(resistance);
+  lcd.print("o");
   
   if(temperatureScale == CELCIUS) {
     // Convert to Celcius
-    temperature = kelvin - 273.15;
+    temperature = temp - 273.15;
   } else if(temperatureScale == FAHRENHEIT) {
     // Convert to Fahrenheit
-    temperature = (kelvin - 273.15) * 9.0/5.0 + 32.0;
+    temperature = (temp - 273.15) * 9.0/5.0 + 32.0;
   }
 }
 
@@ -185,7 +199,7 @@ void buttons() {
  * This function displays to the screen
  */
 void display() {
-  lcd.clear();
+  //lcd.clear();
   
   // if no program is program display the menu
   if(program == -1) {
@@ -216,7 +230,7 @@ void display() {
       print(0, 0, programs[program].events[event].data);
       navigation("", "", ">", "");
     } else {
-      if(programs[program].type == TIMER) {
+      if(programs[program].events[event].type == TIMER) {
         lcd.setCursor(0, 0);
         lcd.print(hours);
         lcd.print(":");
@@ -224,7 +238,7 @@ void display() {
         lcd.print(":");
         lcd.print(seconds);
         navigation("", "", "", "x");
-      } else if(programs[program].type == TEMPERATURE) {
+      } else if(programs[program].events[event].type == TEMPERATURE) {
         lcd.setCursor(0, 0);
         lcd.print(temperature);
         if(temperatureScale == CELCIUS) {
@@ -242,20 +256,23 @@ void display() {
 void alarm() {
   // test if the alarm should sound
   if(started && !showevent) {
-    if(programs[program].type==TIMER) {
-      // do not sound alarm if the first step is at zero time
-      //if(event != 0) {
-        if(programs[program].events[event].hours <= hours && programs[program].events[event].minutes <= minutes && programs[program].events[event].seconds <= seconds) {
-          alarmed = true;
-        }
-      //} 
-    } else if(programs[program].type==TEMPERATURE) {
-        if(programs[program].events[event].temperature > temperature && programs[program].events[event].compare == L) {
-          alarmed = true;
-        } else if(programs[program].events[event].temperature < temperature && programs[program].events[event].compare == G) {
-          alarmed = true;
-        }  
+    if(programs[program].events[event].type==TIMER) {
+      if(programs[program].events[event].hours <= hours && programs[program].events[event].minutes <= minutes && programs[program].events[event].seconds <= seconds) {
+        alarmed = true;
+      }
+    } else if(programs[program].events[event].type==TEMPERATURE) {
+      if(programs[program].events[event].temperature > temperature && programs[program].events[event].compare == L) {
+        alarmed = true;
+      } else if(programs[program].events[event].temperature < temperature && programs[program].events[event].compare == G) {
+        alarmed = true;
+      }  
     }
+  }
+  
+  // do not sound alarm on the first step
+  if(event == 0 && alarmed) {
+    alarmed = false;
+    showevent = true;
   }
   
   // if alarmed play the alarm
