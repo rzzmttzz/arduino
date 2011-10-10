@@ -219,15 +219,15 @@ void display() {
     if(!started) {
       print(0, 0, "Make "+programs[program].name+"?");
       navigation("", "", "y", "n");
+    } else if(cancel) {
+      print(0, 0, "Cancel "+programs[program].name+"?");
+      navigation("", "", "y", "n");
     } else if(alarmed) {
       print(0, 0, "Next step!");
       navigation("", "", ">", "x");
     } else if(showevent) {
       print(0, 0, programs[program].events[event].data);
       navigation("", "", ">", "x");
-    } else if(cancel) {
-      print(0, 0, "Cancel?");
-      navigation("", "", "y", "n");
     } else {
       if(programs[program].events[event].type == TIMER) {
         lcd.setCursor(0, 0);
