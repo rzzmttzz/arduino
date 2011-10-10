@@ -1,7 +1,7 @@
-#include <stdlib.h>
 #include <LiquidCrystal.h>
 #include <TimerOne.h>
 #include <Button.h>
+#include <Thermistor.h>
 #include "programs.h"
 
 #define UP_BUTTON 8
@@ -15,8 +15,6 @@
 #define LCD_HEIGHT 2
 #define NOTE_C7 2093
 #define NOTE_FS7 2960
-#define CELCIUS 1
-#define FAHRENHEIT 2
 
 LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
 
@@ -29,6 +27,7 @@ unsigned int hours = 0;
 float temperature = 0.0;
 // temperature mode
 int temperatureScale = CELCIUS;
+Thermistor thermistor(THERMISTER, temperatureScale,-0.033593997,0.0032009496,-8.627067e-7);
 
 // Navigation and statuses
 int program = -1;
@@ -91,31 +90,11 @@ void second() {
 }
 
 void loop() {
-  lcd.clear();
-  readTemperature();
+  temperature = thermistor.read();
   buttons();
   alarm();
   display();
   delay(200);
-}
-
-// Utilizes the Steinhart-Hart Thermistor Equation:
-//    Temperature in Kelvin = 1 / {A + B[ln(R)] + C[ln(R)]^3}
-
-void readTemperature() {
-  int thermister = analogRead(THERMISTER);
-  long resistance;  double temp;  // Dual-Purpose variable to save space.
-  resistance=((10240000/thermister) - 10000);  // Assuming a 10k Thermistor.  Calculation is actually: Resistance = (1024 * BalanceResistor/ADC) - BalanceResistor
-  temp = log(resistance); // Saving the Log(resistance) so not to calculate it 4 times later. // "Temp" means "Temporary" on this line.
-  temp = 1 / (-0.033593997 + (0.0032009496 * temp) + (-8.627067e-7 * temp * temp * temp));   // Now it means both "Temporary" and "Temperature"
-  temp = temp - 273.15;  // Convert Kelvin to Celsius                       
-  
-  if(temperatureScale == CELCIUS) {
-    temperature = temp;
-  } else if(temperatureScale == FAHRENHEIT) {
-    // Convert to Fahrenheit
-    temperature = temp * 9.0/5.0 + 32.0;
-  }
 }
 
 void buttons() {
@@ -195,7 +174,8 @@ void buttons() {
  * This function displays to the screen
  */
 void display() {
-  //lcd.clear();
+  // delay lcd clear to reduce screen flicker
+  lcd.clear();
   
   // if no program is program display the menu
   if(program == -1) {
