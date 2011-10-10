@@ -37,6 +37,7 @@ boolean started = false;
 boolean showevent = false;
 int event = 0;
 boolean alarmed = false;
+boolean cancel = false;
 
 // Alarm
 // Alarm theory: http://www.anaes.med.usyd.edu.au/alarms/
@@ -107,25 +108,13 @@ void readTemperature() {
   resistance=((10240000/thermister) - 10000);  // Assuming a 10k Thermistor.  Calculation is actually: Resistance = (1024 * BalanceResistor/ADC) - BalanceResistor
   temp = log(resistance); // Saving the Log(resistance) so not to calculate it 4 times later. // "Temp" means "Temporary" on this line.
   temp = 1 / (-0.033593997 + (0.0032009496 * temp) + (-8.627067e-7 * temp * temp * temp));   // Now it means both "Temporary" and "Temperature"
-  //temp = temp - 273.15;  // Convert Kelvin to Celsius                       
-  
-
-  /*
-  float voltage = thermister / 1024 * 5.0;
-  float resistance = (10000 * voltage) / (5.0 - voltage);    
-  float temp = log(resistance);
-  temp = 1.0 / (-7.5e-4 + 6.23e-4 * log(resistance) - 1.73e-6 * (temp * temp * temp));
-  */
-  lcd.setCursor(7, 1);
-  lcd.print(resistance);
-  lcd.print("o");
+  temp = temp - 273.15;  // Convert Kelvin to Celsius                       
   
   if(temperatureScale == CELCIUS) {
-    // Convert to Celcius
-    temperature = temp - 273.15;
+    temperature = temp;
   } else if(temperatureScale == FAHRENHEIT) {
     // Convert to Fahrenheit
-    temperature = (temp - 273.15) * 9.0/5.0 + 32.0;
+    temperature = temp * 9.0/5.0 + 32.0;
   }
 }
 
@@ -181,6 +170,12 @@ void buttons() {
       alarmed = false;
       showevent = true;
     }
+    
+    // ok button pressed to confirm a cancel
+    // if the alarm is triggered stop the alarm enable show event mode
+    if(cancel) {
+      reset();
+    }
   }
   
   // cancel button
@@ -188,9 +183,10 @@ void buttons() {
     // if the selected program has not been started, then deselect the selected program
     if(program != -1 && !started) {
       program = -1;
-    }
-    if(started) {
-      reset();
+    } else if(cancel) {
+      cancel = false;
+    } else if(started) {
+      cancel = true;
     }
   }
 }
@@ -229,6 +225,9 @@ void display() {
     } else if(showevent) {
       print(0, 0, programs[program].events[event].data);
       navigation("", "", ">", "");
+    } else if(cancel) {
+      print(0, 0, "Cancel?");
+      navigation("", "", "y", "n");
     } else {
       if(programs[program].events[event].type == TIMER) {
         lcd.setCursor(0, 0);
@@ -246,6 +245,7 @@ void display() {
         } else if(temperatureScale == FAHRENHEIT) {
           lcd.print(" F");
         }
+        navigation("", "", "", "x");
       }
     }
   }
@@ -305,4 +305,5 @@ void reset() {
   highlighted = 0;
   showevent = false;
   alarmed = false;
+  cancel = false;
 }
