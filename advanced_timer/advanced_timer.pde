@@ -137,6 +137,10 @@ void buttons() {
         }
       }  
     }
+    
+    if(showevent) {
+      
+    }
   }
   
   // ok button
@@ -215,6 +219,7 @@ void display() {
         print(2, i, programs[menu[i]].name);
       }
     }
+    // 120b of code for this optional nav code 
     if(selected == 0) {
       navigation("", "v", "y", "n");
     } else if(selected == PROGRAMS-1) {
@@ -309,7 +314,6 @@ void reset() {
   program = -1;
   started = false;
   event = 0;
-  selected = 0;
   showevent = false;
   alarmed = false;
   cancel = false;
