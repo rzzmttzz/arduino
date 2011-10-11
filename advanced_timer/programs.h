@@ -12,6 +12,8 @@
 #define L 1
 #define G 2
 
+#define PROGRAMS 3
+
 struct Event {
   int type;
   int hours;

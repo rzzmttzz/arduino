@@ -31,12 +31,14 @@ Thermistor thermistor(THERMISTER, temperatureScale,-0.033593997,0.0032009496,-8.
 
 // Navigation and statuses
 int program = -1;
-int highlighted = 0;
+int selected = 0;
 boolean started = false;
 boolean showevent = false;
 int event = 0;
 boolean alarmed = false;
 boolean cancel = false;
+int menu[LCD_HEIGHT];
+int menuSelected = 0;
 
 // Alarm
 // Alarm theory: http://www.anaes.med.usyd.edu.au/alarms/
@@ -45,7 +47,6 @@ int notes[num_notes] = {NOTE_C7,NOTE_FS7,0};
 //int notes[num_notes] = {NOTE_C7,NOTE_FS7,NOTE_C7,0,NOTE_FS7,NOTE_C7,0,0};
 //int notes[num_notes] = {NOTE_C7,NOTE_C7,NOTE_C7,0,0};
 int current_note = 0;
-
 
 // Buttons
 Button upButton(UP_BUTTON);
@@ -65,7 +66,13 @@ void setup() {
   Timer1.initialize(1000000);         
   Timer1.attachInterrupt(second);
   
-  Serial.begin(9600);
+  // init the menu buffer
+  for(int i = 0; i < LCD_HEIGHT; i++) {
+    menu[i]=i;
+  } 
+  
+  //Serial.begin(9600);
+  
 }
  
 /**
@@ -100,15 +107,35 @@ void loop() {
 void buttons() {
   // up button
   if (upButton.read() == HIGH) {
-    if(highlighted > 0) {
-      highlighted--;
-    }
-  } 
+    // if on menu
+    if(program == -1) {
+      if(selected > 0) {
+        selected--;
+        if(menuSelected == 0) {
+          for(int i = 0; i < LCD_HEIGHT; i++) {
+            menu[i]--;
+          } 
+        } else {
+          menuSelected--;
+        }
+      }
+    } 
+  }
   
   // down button
   if (downButton.read() == HIGH) {
-    if(highlighted < sizeof(programs)) {
-      highlighted++;
+    // if on menu
+    if(program == -1) {
+      if(selected < PROGRAMS-1) {
+        selected++;
+        if(menuSelected == LCD_HEIGHT-1) {
+          for(int i = 0; i < LCD_HEIGHT; i++) {
+            menu[i]++;
+          } 
+        } else {
+          menuSelected++;
+        }
+      }  
     }
   }
   
@@ -120,9 +147,9 @@ void buttons() {
       started = true;
     }
     // ok button pressed while in menu mode
-    // if no program is selected, then select the highlighted program
+    // if no program is selected, then select the selected program
     if(program == -1) {
-      program = highlighted;
+      program = selected;
     }
     
     // ok button pressed while in showevent mode
@@ -176,25 +203,25 @@ void buttons() {
 void display() {
   // delay lcd clear to reduce screen flicker
   lcd.clear();
-  
-  // if no program is program display the menu
+
   if(program == -1) {
     for(int i = 0; i < LCD_HEIGHT ;i++) {
-      // TODO keep program program on screen byscrolling the list 
-      if(highlighted > LCD_HEIGHT-1) {
-        
-      }
-      
-      // highlight the highlighted program
-      if(i == highlighted) {
+      // highlight the selected program
+      if(menu[i] == selected) {
         print(1, i, ">");
-        print(2, i, programs[i].name);
+        print(2, i, programs[menu[i]].name);
         print(LCD_WIDTH-2, i, "<");
       } else {
-        print(2, i, programs[i].name);
+        print(2, i, programs[menu[i]].name);
       }
     }
-    navigation("^", "v", "y", "n");
+    if(selected == 0) {
+      navigation("", "v", "y", "n");
+    } else if(selected == PROGRAMS-1) {
+      navigation("^", "", "y", "n");
+    } else {
+      navigation("^", "v", "y", "n");
+    }
   } else {
     if(!started) {
       print(0, 0, "Make "+programs[program].name+"?");
@@ -282,7 +309,7 @@ void reset() {
   program = -1;
   started = false;
   event = 0;
-  highlighted = 0;
+  selected = 0;
   showevent = false;
   alarmed = false;
   cancel = false;
