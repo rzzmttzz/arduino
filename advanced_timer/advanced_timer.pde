@@ -15,6 +15,7 @@
 #define LCD_HEIGHT 2
 #define NOTE_C7 2093
 #define NOTE_FS7 2960
+#define EVENT_BUF_LEN 20
 
 LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
 
@@ -32,13 +33,17 @@ Thermistor thermistor(THERMISTER, temperatureScale,-0.033593997,0.0032009496,-8.
 // Navigation and statuses
 int program = -1;
 int selected = 0;
+int event = 0;
 boolean started = false;
 boolean showevent = false;
-int event = 0;
 boolean alarmed = false;
 boolean cancel = false;
+
 int menu[LCD_HEIGHT];
 int menuSelected = 0;
+String eventBuffer[EVENT_BUF_LEN];
+int eventBufferLength = 0;
+int eventScroll = 0;
 
 // Alarm
 // Alarm theory: http://www.anaes.med.usyd.edu.au/alarms/
@@ -119,6 +124,10 @@ void buttons() {
           menuSelected--;
         }
       }
+    } else if(showevent) {
+      if(eventScroll>0) {
+        eventScroll--;
+      }
     } 
   }
   
@@ -136,28 +145,31 @@ void buttons() {
           menuSelected++;
         }
       }  
-    }
-    
-    if(showevent) {
-      
+    } else if(showevent) {
+      if(eventScroll < eventBufferLength-LCD_HEIGHT+1) {
+        eventScroll++;
+      }
     }
   }
   
   // ok button
   if (okButton.read() == HIGH) {
-    // button pressed while confirming program
-    // if the program is selected but not started, then start it
-    if(program != -1 && !started) {
-      started = true;
-    }
-    // ok button pressed while in menu mode
-    // if no program is selected, then select the selected program
     if(program == -1) {
+      // ok button pressed while in menu mode
+      // if no program is selected, then select the selected program
       program = selected;
-    }
-    
-    // ok button pressed while in showevent mode
-    if(showevent) {
+    } else if(program != -1 && !started) {
+      // button pressed while confirming program
+      // if the program is selected but not started, then start it
+      started = true;
+    } else if(alarmed) {
+      // ok button pressed while in alarm mode
+      // if the alarm is triggered stop the alarm enable show event mode
+      alarmed = false;
+      showevent = true;
+      initEventBuffer();
+    } else if(showevent) {
+      // ok button pressed while in showevent mode
       showevent=false;
       // reset the timer
       hours = 0;
@@ -170,20 +182,10 @@ void buttons() {
       } else {
         // otherwise reset all of the variables to display the menu again
         reset();
-      }
-      
-    }
-    // ok button pressed while in alarm mode
-    // must be after showevent
-    // if the alarm is triggered stop the alarm enable show event mode
-    if(alarmed) {
-      alarmed = false;
-      showevent = true;
-    }
-    
-    // ok button pressed to confirm a cancel
-    // if the alarm is triggered stop the alarm enable show event mode
-    if(cancel) {
+      }  
+    } else if(cancel) {
+      // ok button pressed to confirm a cancel
+      // if the alarm is triggered stop the alarm enable show event mode
       reset();
     }
   }
@@ -219,14 +221,7 @@ void display() {
         print(2, i, programs[menu[i]].name);
       }
     }
-    // 120b of code for this optional nav code 
-    if(selected == 0) {
-      navigation("", "v", "y", "n");
-    } else if(selected == PROGRAMS-1) {
-      navigation("^", "", "y", "n");
-    } else {
-      navigation("^", "v", "y", "n");
-    }
+    navigation("^", "v", "y", "n");
   } else {
     if(!started) {
       print(0, 0, "Make "+programs[program].name+"?");
@@ -238,8 +233,13 @@ void display() {
       print(0, 0, "Next step!");
       navigation("", "", ">", "x");
     } else if(showevent) {
-      print(0, 0, programs[program].events[event].data);
-      navigation("", "", ">", "x");
+      int r = 0;
+      for(int i = eventScroll; i < eventScroll+LCD_HEIGHT; i++) {
+        print(1, r, eventBuffer[i]);
+        r++;
+      }
+      //print(0, 0, programs[program].events[event].data);
+      navigation("^", "v", ">", "x");
     } else {
       if(programs[program].events[event].type == TIMER) {
         lcd.setCursor(0, 0);
@@ -285,6 +285,7 @@ void alarm() {
   if(event == 0 && alarmed) {
     alarmed = false;
     showevent = true;
+    initEventBuffer();
   }
   
   // if alarmed play the alarm
@@ -295,6 +296,29 @@ void alarm() {
       current_note = 0;
     }
   }
+}
+
+// load initial event buffer
+void initEventBuffer() {
+  eventScroll = 0;
+  eventBufferLength = 0;
+  int eventDataLength = programs[program].events[event].data.length();
+  int counter = 0;
+  for(int i = 0; i < EVENT_BUF_LEN; i++) {
+    char row[LCD_WIDTH-2];
+    for(int j = 0; j < LCD_WIDTH-2; j++) {
+      if(counter < eventDataLength) {
+        row[j] = programs[program].events[event].data.charAt(counter);
+      } else {
+        row[j] = ' ';
+      }
+      counter++;
+    }
+    eventBuffer[i]= row;
+    if(counter < eventDataLength) {
+      eventBufferLength++;
+    }
+  }  
 }
 
 // display naivigation
