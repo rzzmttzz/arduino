@@ -11,11 +11,10 @@
 #define LED 13
 #define ALARM 6
 #define THERMISTER 0
-#define LCD_WIDTH 16
-#define LCD_HEIGHT 2
+#define LCD_WIDTH 20
+#define LCD_HEIGHT 4
 #define NOTE_C7 2093
 #define NOTE_FS7 2960
-#define EVENT_BUF_LEN 20
 
 LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
 
@@ -41,8 +40,6 @@ boolean cancel = false;
 
 int menu[LCD_HEIGHT];
 int menuSelected = 0;
-String eventBuffer[EVENT_BUF_LEN];
-int eventBufferLength = 0;
 int eventScroll = 0;
 
 // Alarm
@@ -75,9 +72,6 @@ void setup() {
   for(int i = 0; i < LCD_HEIGHT; i++) {
     menu[i]=i;
   } 
-  
-  //Serial.begin(9600);
-  
 }
  
 /**
@@ -146,9 +140,9 @@ void buttons() {
         }
       }  
     } else if(showevent) {
-      if(eventScroll < eventBufferLength-LCD_HEIGHT+1) {
+     // if(eventScroll < eventBufferLength-LCD_HEIGHT+1) {
         eventScroll++;
-      }
+      //}
     }
   }
   
@@ -167,7 +161,6 @@ void buttons() {
       // if the alarm is triggered stop the alarm enable show event mode
       alarmed = false;
       showevent = true;
-      initEventBuffer();
     } else if(showevent) {
       // ok button pressed while in showevent mode
       showevent=false;
@@ -221,7 +214,7 @@ void display() {
         print(2, i, programs[menu[i]].name);
       }
     }
-    navigation("^", "v", "y", "n");
+    navigation("^", "v", "y", "");
   } else {
     if(!started) {
       print(0, 0, "Make "+programs[program].name+"?");
@@ -235,10 +228,9 @@ void display() {
     } else if(showevent) {
       int r = 0;
       for(int i = eventScroll; i < eventScroll+LCD_HEIGHT; i++) {
-        print(1, r, eventBuffer[i]);
+        print(1, r, programs[program].events[event].data[i]);
         r++;
       }
-      //print(0, 0, programs[program].events[event].data);
       navigation("^", "v", ">", "x");
     } else {
       if(programs[program].events[event].type == TIMER) {
@@ -285,7 +277,6 @@ void alarm() {
   if(event == 0 && alarmed) {
     alarmed = false;
     showevent = true;
-    initEventBuffer();
   }
   
   // if alarmed play the alarm
@@ -296,29 +287,6 @@ void alarm() {
       current_note = 0;
     }
   }
-}
-
-// load initial event buffer
-void initEventBuffer() {
-  eventScroll = 0;
-  eventBufferLength = 0;
-  int eventDataLength = programs[program].events[event].data.length();
-  int counter = 0;
-  for(int i = 0; i < EVENT_BUF_LEN; i++) {
-    char row[LCD_WIDTH-2];
-    for(int j = 0; j < LCD_WIDTH-2; j++) {
-      if(counter < eventDataLength) {
-        row[j] = programs[program].events[event].data.charAt(counter);
-      } else {
-        row[j] = ' ';
-      }
-      counter++;
-    }
-    eventBuffer[i]= row;
-    if(counter < eventDataLength) {
-      eventBufferLength++;
-    }
-  }  
 }
 
 // display naivigation
