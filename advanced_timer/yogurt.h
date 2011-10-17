@@ -13,8 +13,8 @@ String yogurt4[] = {
   "set"};
 
 Event yogurt[4] = {
-  {TIMER,0,0,0,0,0,yogurt1},
-  {TEMPERATURE,0,0,0,G,84, yogurt2},
-  {TEMPERATURE,0,0,0,L,44, yogurt3},
-  {TIMER,4,0,0,0,0,yogurt4}
+  {TIMER,0,0,0,0,0,yogurt1,1},
+  {TEMPERATURE,0,0,0,G,84, yogurt2,1},
+  {TEMPERATURE,0,0,0,L,44, yogurt3,3},
+  {TIMER,4,0,0,0,0,yogurt4,2}
 };

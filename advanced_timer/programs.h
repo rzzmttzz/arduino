@@ -1,3 +1,5 @@
+#ifndef Programs_h
+#define Programs_h
 /**
  * A Program has a name and an array of events.
  * An Event 
@@ -21,4 +23,6 @@ Program programs[PROGRAMS] = {
   { "Camembert", 3,       camembert},
   { "Yogurt",    3,       yogurt}
 };
+
+#endif
 

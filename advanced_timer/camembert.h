@@ -1,17 +1,17 @@
 #include "program.h"
 //"                  " 18 chars
 String camembert1[] = {
-  "* Prepare the",
-  "  cheese starter",
-  "* Prepare the",
-  "  styrofoam box", 
-  "* Heat milk"
+  "*Prepare the",
+  " cheese starter",
+  "*Prepare the",
+  " styrofoam box", 
+  "*Heat milk"
 };
 String camembert2[] = {
-  "* do some stuff", 
-  "* do some stuff", 
-  "* do some stuff", 
-  "* do some stuff"
+  "*do some stuff", 
+  "*do some stuff", 
+  "*do some stuff", 
+  "*do some stuff"
 };
 String camembert3[] = {
   "camembert is",
@@ -19,9 +19,9 @@ String camembert3[] = {
 };
 
 Event camembert[3] = {
-  {TIMER,0,0,0,0,0,camembert1},
-  {TEMPERATURE,0,0,0,G,25,camembert2},
-  {TIMER,0,0,5,0,0,camembert3}
+  {TIMER,0,0,0,0,0,camembert1,5},
+  {TEMPERATURE,0,0,0,G,25,camembert2,4},
+  {TIMER,0,0,5,0,0,camembert3,2}
 };
 
 /*

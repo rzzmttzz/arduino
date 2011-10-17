@@ -1,5 +1,5 @@
-#ifndef Event_h
-#define Event_h
+#ifndef Program_h
+#define Program_h
 
 #define TIMER 0
 #define TEMPERATURE 1
@@ -14,6 +14,7 @@ struct Event {
   int compare;
   int temperature;
   String* data;
+  int length;
 };
 
 struct Program {

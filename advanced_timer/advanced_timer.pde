@@ -44,8 +44,9 @@ int eventScroll = 0;
 
 // Alarm
 // Alarm theory: http://www.anaes.med.usyd.edu.au/alarms/
-const int num_notes = 3;
-int notes[num_notes] = {NOTE_C7,NOTE_FS7,0};
+const int num_notes = 5;
+int notes[num_notes] = {NOTE_C7,NOTE_C7,NOTE_C7,0,0};
+//int notes[num_notes] = {NOTE_C7,NOTE_FS7,0};
 //int notes[num_notes] = {NOTE_C7,NOTE_FS7,NOTE_C7,0,NOTE_FS7,NOTE_C7,0,0};
 //int notes[num_notes] = {NOTE_C7,NOTE_C7,NOTE_C7,0,0};
 int current_note = 0;
@@ -140,9 +141,9 @@ void buttons() {
         }
       }  
     } else if(showevent) {
-     // if(eventScroll < eventBufferLength-LCD_HEIGHT+1) {
+      if(programs[program].events[event].length > LCD_HEIGHT && eventScroll < (programs[program].events[event].length-LCD_HEIGHT)) {
         eventScroll++;
-      //}
+      }
     }
   }
   
@@ -254,7 +255,7 @@ void display() {
     }
   }
   
-  //print(2, 1, event);
+  //print(8, 1, sizeof(programs[program].events[event].data));
 }
 
 void alarm() {
