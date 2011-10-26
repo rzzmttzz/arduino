@@ -27,7 +27,7 @@ unsigned int hours = 0;
 float temperature = 0.0;
 // temperature mode
 int temperatureScale = CELCIUS;
-Thermistor thermistor(THERMISTER, temperatureScale,-0.033593997,0.0032009496,-8.627067e-7);
+//Thermistor thermistor(THERMISTER, temperatureScale,-0.033593997,0.0032009496,-8.627067e-7);
 
 // Navigation and statuses
 int program = -1;
@@ -97,7 +97,11 @@ void second() {
 }
 
 void loop() {
-  temperature = thermistor.read();
+  lcd.clear();
+  //temperature = thermistor.read();
+  int val = analogRead(THERMISTER);// * 0.004882812 * 100;   
+  temperature =  (((5000 * val) / 1024) / 10) - 273.15;
+  print(10,3,val);
   buttons();
   alarm();
   display();
@@ -202,7 +206,7 @@ void buttons() {
  */
 void display() {
   // delay lcd clear to reduce screen flicker
-  lcd.clear();
+  //lcd.clear();
 
   if(program == -1) {
     for(int i = 0; i < LCD_HEIGHT ;i++) {
