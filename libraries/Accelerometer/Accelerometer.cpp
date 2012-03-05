@@ -2,15 +2,15 @@
 #include "Accelerometer.h"
 
 /**
- * xpin: is the analog pin for x acceleration
- * ypin: is the analog pin for y acceleration
- * zpin: is the analog pin for z acceleration
- * zerogpin: is the digital pin to read the zero g event
+ * xpin: 		analog pin for x acceleration
+ * ypin: 		analog pin for y acceleration
+ * zpin: 		analog pin for z acceleration
+ * zerogpin: 	digital pin to read the zero g event
  */
 Accelerometer::Accelerometer(int xpin, int ypin, int zpin, int zerogpin) {
 	_xpin = xpin;
 	_ypin = ypin;
-	_zpin = ypin;
+	_zpin = zpin;
 	_zerogpin = zerogpin;
 	_vector = (vector*) malloc(sizeof(vector));
 }

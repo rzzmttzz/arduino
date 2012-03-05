@@ -29,14 +29,8 @@
 
 */
 
-// these constants describe the pins. They won't change:
-const int groundpin = 18;             // analog input pin 4 -- ground
-const int powerpin = 19;              // analog input pin 5 -- voltage
-const int xpin = A3;                  // x-axis of the accelerometer
-const int ypin = A2;                  // y-axis
-const int zpin = A1;                  // z-axis (only on 3-axis models)
 
-Accelerometer acc(A1,A2,A3,2);
+Accelerometer acc(A0,A1,A2,2);
 
 void setup()
 {
@@ -50,12 +44,13 @@ void loop()
 {
   vector* vector = acc.getVector();
   
+  Serial.print("{x:");
   Serial.print(vector->x);
-  Serial.print("\t");
+  Serial.print(", y:");
   Serial.print(vector->y);
-  Serial.print("\t");
+  Serial.print(", z:");
   Serial.print(vector->z);
-  Serial.println();
+  Serial.println("}");
 
   delay(100);
 }
