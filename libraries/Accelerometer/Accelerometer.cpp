@@ -7,17 +7,31 @@
  * zpin: 		analog pin for z acceleration
  * zerogpin: 	digital pin to read the zero g event
  */
-Accelerometer::Accelerometer(int xpin, int ypin, int zpin, int zerogpin) {
+Accelerometer::Accelerometer(int xpin, int ypin, int zpin, int zerogpin, double aref) {
 	_xpin = xpin;
 	_ypin = ypin;
 	_zpin = zpin;
 	_zerogpin = zerogpin;
+	_aref = aref;
+	
+	_vzerog = 1.65;
+	_sensitivity = 0.44;
+	_adcrange = 1023;
 	_vector = (vector*) malloc(sizeof(vector));
 }
 
 vector* Accelerometer::getVector() {
-	_vector->x = analogRead(_xpin)-512;
-	_vector->y = analogRead(_ypin)-512;
-	_vector->z = analogRead(_zpin)-512;
+
+	_vector->x = (analogRead(_xpin) * _aref / _adcrange - _vzerog) / _sensitivity;
+	_vector->y = (analogRead(_ypin) * _aref / _adcrange - _vzerog) / _sensitivity;
+	_vector->z = (analogRead(_zpin) * _aref / _adcrange - _vzerog) / _sensitivity;
+	_vector->zerog = digitalRead(_zerogpin);
+	
+	_vector->d = sqrt(square(_vector->x) + square(_vector->y) + square(_vector->z));
+	_vector->ax = acos(_vector->x/_vector->d);
+	_vector->ay = acos(_vector->y/_vector->d);
+	_vector->az = acos(_vector->z/_vector->d);
+	
+	
 	return _vector;
 }
