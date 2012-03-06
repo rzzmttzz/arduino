@@ -45,5 +45,5 @@ void loop()
   Serial.print(vector->zerog);
   Serial.println("}");
 
-  delay(50);
+  delay(10);
 }
