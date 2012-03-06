@@ -25,7 +25,8 @@ class Accelerometer {
 		int _zpin;
 		int _zerogpin;
 		double _aref;
-		double _vzerog;
+		double _vzerogxy;
+		double _vzerogz;
 		double _sensitivity;
 		double _adcrange;
 		vector* _vector;		
