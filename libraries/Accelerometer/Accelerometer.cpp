@@ -1,5 +1,6 @@
 #include "WProgram.h"
 #include "Accelerometer.h"
+#include "../Smooth/Smooth.h"
 
 /**
  * xpin: 		analog pin for x acceleration
@@ -19,10 +20,30 @@ Accelerometer::Accelerometer(int xpin, int ypin, int zpin, int zerogpin, double 
 	_sensitivity = 0.44;
 	_adcrange = 1023;
 	_vector = (vector*) malloc(sizeof(vector));
+	
+}
+
+Accelerometer::Accelerometer(Smooth& xpin, Smooth& ypin, Smooth& zpin, int zerogpin, double aref) {
+	_zerogpin = zerogpin;
+	_aref = aref;
+	
+	_vzerogxy = 1.65;
+	_vzerogz = 1.5;
+	_sensitivity = 0.44;
+	_adcrange = 1023;
+	_vector = (vector*) malloc(sizeof(vector));
+
+	_smoothX = &xpin;
+	_smoothY = &ypin;
+	_smoothZ = &zpin;
 }
 
 vector* Accelerometer::getVector() {
 
+	//_vector->x = (_smoothX->smoothedAnalogRead() * _aref / _adcrange - _vzerogxy) / _sensitivity;
+	//_vector->y = (_smoothY->smoothedAnalogRead() * _aref / _adcrange - _vzerogxy) / _sensitivity;
+	//_vector->z = (_smoothZ->smoothedAnalogRead() * _aref / _adcrange - _vzerogz) / _sensitivity;
+	
 	_vector->x = (analogRead(_xpin) * _aref / _adcrange - _vzerogxy) / _sensitivity;
 	_vector->y = (analogRead(_ypin) * _aref / _adcrange - _vzerogxy) / _sensitivity;
 	_vector->z = (analogRead(_zpin) * _aref / _adcrange - _vzerogz) / _sensitivity;

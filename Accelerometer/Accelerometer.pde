@@ -10,8 +10,11 @@
 
 
 */
-
+//Smooth smoothX(X);
+//Smooth smoothY(Y);
+//Smooth smoothZ(Z);
 Accelerometer acc(X,Y,Z,ZEROG,AREF);
+//Accelerometer acc(smoothX,smoothY,smoothZ,ZEROG,AREF);
 
 void setup()
 {

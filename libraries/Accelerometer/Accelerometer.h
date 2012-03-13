@@ -2,6 +2,7 @@
 #define Accelerometer_h
 
 #include "WProgram.h"
+#include "../Smooth/Smooth.h"
 
 
 typedef struct vector {
@@ -18,6 +19,7 @@ typedef struct vector {
 class Accelerometer {
 	public:
     	Accelerometer(int xpin, int ypin, int zpin, int zerogpin, double aref);
+    	Accelerometer(Smooth& xpin, Smooth& ypin, Smooth& zpin, int zerogpin, double aref);
     	vector* getVector();
 	private:
 		int _xpin;
@@ -29,7 +31,10 @@ class Accelerometer {
 		double _vzerogz;
 		double _sensitivity;
 		double _adcrange;
-		vector* _vector;		
+		vector* _vector;
+		Smooth* _smoothX;		
+		Smooth* _smoothY;		
+		Smooth* _smoothZ;		
 };
 
 #endif
