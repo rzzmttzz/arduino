@@ -22,10 +22,10 @@ class Vector {
 }
 
 void setup() {
-  size(600, 600, OPENGL); 
+  size(600, 600, P3D); 
   noStroke(); 
   //colorMode(RGB, 1);
-  //frameRate(30);
+  frameRate(60);
 
   font = loadFont("Garuda-32.vlw");
   fill(255);
@@ -49,11 +49,13 @@ void draw() {
   lightSpecular(100, 100, 100); 
   directionalLight(102, 102, 102, -1, -1, 0);
   
+  
+  
   float depth = -500;
   float graphDepth = 0;
   // draw walls
   fill(150);
-  stroke(20);
+  stroke(130);
   beginShape(QUADS);
     vertex(0, 0, 0);
     vertex(0, 0, depth);
@@ -119,9 +121,9 @@ void draw() {
   
   // draw ball axis
   stroke(0);
-  line(0, height/2, graphDepth/2, width,  height/2, graphDepth/2);
-  line(width/2, 0, graphDepth/2, width/2, height,graphDepth/2);
-  line(width/2, height/2, 0, width/2, height/2,graphDepth);
+  line(0, height/2, depth/2, width,  height/2, depth/2);
+  line(width/2, 0, depth/2, width/2, height, depth/2);
+  line(width/2, height/2, 0, width/2, height/2, depth);
 
   // draw graph axis
   stroke(255,255,255);
@@ -179,67 +181,6 @@ void draw() {
       line(x, height-map(prev.z, -3, 3, 0, height), graphDepth, x, height - map(v.z, -3, 3, 0, height), graphDepth); 
     } catch(IndexOutOfBoundsException e) {}
   }
-  
-  //draw latest reading
-  if(vectors.size()>1) {
-    Vector latest = (Vector)vectors.get(vectors.size()-1);
-    
-    
-    float ax=0,ay=0,az=0;
-    float arcx = acos(latest.x/latest.d);
-    float arcy = acos(latest.y/latest.d);
-    float arcz = acos(latest.z/latest.d);
-    
-    fill(255,255,0);
-    //text("arcx:"+arcx,width/2+10,150);
-    fill(255,0,255);
-    //text("arcy:"+arcy,width/2+10,170);
-    fill(0,255,255);
-    //text("arcz:"+arcz,width/2+10,190);
-    float arcsinx = acos(latest.x/latest.d);
-    float arcsiny = acos(latest.y/latest.d);
-    float arcsinz = acos(latest.z/latest.d);
- 
-    float x = latest.x, y = latest.y, z = latest.z;
-    if (y > 0 && z > 0) { 
-      ax = arcsinx;
-    } else if (y < 0 && z > 0) { 
-      ax = 2*PI + arcsinx; 
-    } else if (y > 0 && z < 0) {
-      ax = PI - arcsinx;
-    } else if (y < 0 && z < 0) {
-      ax = PI - arcsinx; 
-    }
-    
-    if (x > 0 && z > 0) { 
-      ay = arcsiny;
-    } else if (x < 0 && z > 0) { // x neg, y pos: lower-right
-      ay = 2*PI + arcsiny; // arcsin is negative here, actuall 360 - ang
-    } else if (x > 0 && z < 0) { // x pos, y neg: upper-left
-      ay = PI - arcsiny;
-    } else if (x < 0 && z < 0) { // both neg: upper-right
-      ay = PI - arcsiny; // arcsin is negative here, actually 180 + ang
-    }
-    
-    if (x > 0 && y > 0) { 
-      az = arcsinz;
-    } else if (x < 0 && y > 0) { // x neg, y pos: lower-right
-      az = 2*PI + arcsinz; // arcsin is negative here, actuall 360 - ang
-    } else if (x > 0 && y < 0) { // x pos, y neg: upper-left
-      az = PI - arcsinz;
-    } else if (x < 0 && y < 0) { // both neg: upper-right
-      az = PI - arcsinz; // arcsin is negative here, actually 180 + ang
-    }
-    //latest.ax = ax;
-    //latest.ay = ay;
-    //latest.az = az;
-
-    fill(0,255,255);
-    //text("ax:"+ax,width/2+10,210);
-    //text("ay:"+ay,width/2+10,230);
-    //text("az:"+az,width/2+10,250);
-  
-  }
 }
 
 // the serial event thread collects the data
@@ -264,6 +205,31 @@ void serialEvent (Serial port) {
     v.az = (float)data.getDouble("az");
     v.d = (float)data.getDouble("d");
     v.zerog = data.getInt("zerog");
+    
+    float ax=0,ay=0,az=0;
+    float arcx = acos(v.x/v.d);
+    float arcy = acos(v.y/v.d);
+    float arcz = acos(v.z/v.d);
+     
+    float x = v.x, y = v.y, z = v.z;
+
+    if(z>0) {
+       v.ax = arcx;
+    } else {
+       v.ax = 2*PI - arcx;
+    } 
+
+    if(z>0) {
+       v.ay = arcy;
+    } else {
+       v.ay = 2*PI - arcy;
+    } 
+
+    if(y>0) {
+       v.az = arcz;
+    } else {
+       v.az = 2*PI - arcz;
+    } 
     
     //store it in an arraylist
     vectors.add(v);
