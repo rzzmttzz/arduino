@@ -8,21 +8,22 @@
  * zpin: 		analog pin for z acceleration
  * zerogpin: 	digital pin to read the zero g event
  */
-Accelerometer::Accelerometer(int xpin, int ypin, int zpin, int zerogpin, double aref) {
+Accelerometer::Accelerometer(int xpin, int ypin, int zpin, int zerogpin, double aref, double vzerogxy, double vzerogz, double sensitivity) {
 	_xpin = xpin;
 	_ypin = ypin;
 	_zpin = zpin;
 	_zerogpin = zerogpin;
 	_aref = aref;
 	
-	_vzerogxy = 1.65;
-	_vzerogz = 1.5;
-	_sensitivity = 0.44;
+	_vzerogxy = vzerogxy;
+	_vzerogz = vzerogz;
+	_sensitivity = sensitivity;
 	_adcrange = 1023;
 	_vector = (vector*) malloc(sizeof(vector));
 	
 }
 
+/*
 Accelerometer::Accelerometer(Smooth& xpin, Smooth& ypin, Smooth& zpin, int zerogpin, double aref) {
 	_zerogpin = zerogpin;
 	_aref = aref;
@@ -37,6 +38,7 @@ Accelerometer::Accelerometer(Smooth& xpin, Smooth& ypin, Smooth& zpin, int zerog
 	_smoothY = &ypin;
 	_smoothZ = &zpin;
 }
+*/
 
 vector* Accelerometer::getVector() {
 
@@ -48,10 +50,10 @@ vector* Accelerometer::getVector() {
 	_vector->y = (analogRead(_ypin) * _aref / _adcrange - _vzerogxy) / _sensitivity;
 	_vector->z = (analogRead(_zpin) * _aref / _adcrange - _vzerogz) / _sensitivity;
 	
-	_vector->d = sqrt(square(_vector->x) + square(_vector->y) + square(_vector->z));
-	_vector->ax = acos(_vector->x/_vector->d);
-	_vector->ay = acos(_vector->y/_vector->d);
-	_vector->az = acos(_vector->z/_vector->d);
+	//_vector->d = sqrt(square(_vector->x) + square(_vector->y) + square(_vector->z));
+	//_vector->ax = acos(_vector->x/_vector->d);
+	//_vector->ay = acos(_vector->y/_vector->d);
+	//_vector->az = acos(_vector->z/_vector->d);
 
 	_vector->zerog = digitalRead(_zerogpin);
 
