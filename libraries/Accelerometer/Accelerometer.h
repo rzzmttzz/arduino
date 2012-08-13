@@ -9,17 +9,17 @@ typedef struct vector {
 	double x;
 	double y;
 	double z;
-	double ax;
-	double ay;
-	double az;
-	double d;
+	//double ax;
+	//double ay;
+	//double az;
+	//double d;
 	int zerog;
 } vector;
 
 class Accelerometer {
 	public:
-    	Accelerometer(int xpin, int ypin, int zpin, int zerogpin, double aref);
-    	Accelerometer(Smooth& xpin, Smooth& ypin, Smooth& zpin, int zerogpin, double aref);
+    	Accelerometer(int xpin, int ypin, int zpin, int zerogpin, double aref, double vzerogxy, double vzerogz, double sensitivity);
+    	//Accelerometer(Smooth& xpin, Smooth& ypin, Smooth& zpin, int zerogpin, double aref);
     	vector* getVector();
 	private:
 		int _xpin;
@@ -32,9 +32,9 @@ class Accelerometer {
 		double _sensitivity;
 		double _adcrange;
 		vector* _vector;
-		Smooth* _smoothX;		
-		Smooth* _smoothY;		
-		Smooth* _smoothZ;		
+		//Smooth* _smoothX;		
+		//Smooth* _smoothY;		
+		//Smooth* _smoothZ;		
 };
 
 #endif

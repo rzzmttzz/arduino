@@ -5,7 +5,9 @@
 #define Z A2
 #define ZEROG 2
 #define AREF 3.3
-
+#define V0GXY 1.65
+#define V0GZ 1.5
+#define SENSITIVITY 0.44
 /*
 
 
@@ -13,7 +15,7 @@
 //Smooth smoothX(X);
 //Smooth smoothY(Y);
 //Smooth smoothZ(Z);
-Accelerometer acc(X,Y,Z,ZEROG,AREF);
+Accelerometer acc(X,Y,Z,ZEROG,AREF,V0GXY,V0GZ,SENSITIVITY);
 //Accelerometer acc(smoothX,smoothY,smoothZ,ZEROG,AREF);
 
 void setup()
@@ -36,14 +38,14 @@ void loop()
   Serial.print(vector->y);
   Serial.print(", z:");
   Serial.print(vector->z);
-  Serial.print(", ax:");
-  Serial.print(vector->ax);
-  Serial.print(", ay:");
-  Serial.print(vector->ay);
-  Serial.print(", az:");
-  Serial.print(vector->az);
-  Serial.print(", d:");
-  Serial.print(vector->d);
+  //Serial.print(", ax:");
+  //Serial.print(vector->ax);
+  //Serial.print(", ay:");
+  //Serial.print(vector->ay);
+  //Serial.print(", az:");
+  //Serial.print(vector->az);
+  //Serial.print(", d:");
+  //Serial.print(vector->d);
   Serial.print(", zerog:");
   Serial.print(vector->zerog);
   Serial.println("}");

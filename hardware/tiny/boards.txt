@@ -635,5 +635,17 @@ attiny13at9.build.mcu=attiny13
 attiny13at9.build.f_cpu=9600000L
 attiny13at9.build.core=core13
 #attiny13at9.build.variant=tiny8
+
+###########################################################################
+
+attiny13a.name=ATtiny13 (internal 9.6 MHz clock)
+attiny13a.bootloader.low_fuses=0x7a
+attiny13a.bootloader.high_fuses=0xff
+attiny13a.upload.maximum_size=1024
+attiny13a.build.mcu=attiny13
+attiny13a.build.f_cpu=9600000L
+attiny13a.build.core=arduino:arduino
+attiny13a.build.variant=tiny8
+
 ###########################################################################
 
