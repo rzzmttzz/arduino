@@ -592,3 +592,48 @@ attiny2313at1.build.f_cpu=1000000L
 attiny2313at1.build.core=tiny
  
 ###########################################################################
+
+attiny13.name=Attiny13 @ 128 KHz (internal watchdog oscillator)
+
+attiny13.upload.using=arduino:arduinoisp
+# attiny13.upload.protocol=avrispv2 
+# attiny2313at1.upload.using=pololu
+
+attiny13.upload.maximum_size=1024
+attiny13.upload.speed=19200
+
+attiny13.bootloader.low_fuses=0x7B
+attiny13.bootloader.high_fuses=0xFF
+attiny13.bootloader.path=empty
+attiny13.bootloader.file=empty
+
+attiny13.bootloader.unlock_bits=0xFF
+attiny13.bootloader.lock_bits=0xFF
+
+attiny13.build.mcu=attiny13
+attiny13.build.f_cpu=128000
+attiny13.build.core=core13
+
+###############################################################
+
+attiny13at4.name=ATtiny13 @ 4.8MHz (internal 4.8 MHz clock)
+
+attiny13at4.bootloader.low_fuses=0x69
+attiny13at4.bootloader.high_fuses=0xff
+attiny13at4.upload.maximum_size=1024
+attiny13at4.build.mcu=attiny13
+attiny13at4.build.f_cpu=600000
+attiny13at4.build.core=core13
+###############################################################
+ 
+attiny13at9.name=ATtiny13 @ 9.6MHz (internal 9.6 MHz clock)
+
+attiny13at9.bootloader.low_fuses=0x7a
+attiny13at9.bootloader.high_fuses=0xff
+attiny13at9.upload.maximum_size=1024
+attiny13at9.build.mcu=attiny13
+attiny13at9.build.f_cpu=9600000L
+attiny13at9.build.core=core13
+#attiny13at9.build.variant=tiny8
+###########################################################################
+
