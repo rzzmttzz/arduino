@@ -50,11 +50,11 @@ void loop() {
 
 // Select ADC Channel ch must be 0-7
 int realAnalogRead(uint8_t ch) {
- ADMUX = (1 << ADLAR); // AD result store in (more significant bit in ADCH)
- ADMUX |= ch&0b00000111; // switch to adc channel
+ ADMUX = (1 << ADLAR)| // AD result store in (more significant bit in ADCH)
+   ch&0b00000111; // switch to adc channel
  
- ADCSRA |= (1 << ADEN); // Analog-Digital enable bit
- ADCSRA |= (1 << ADSC); // Discard first conversion
+ ADCSRA |= (1 << ADEN)| // Analog-Digital enable bit
+   (1 << ADSC); // Discard first conversion
  
  while (ADCSRA & (1 << ADSC)); // wait until conversion is done
  
