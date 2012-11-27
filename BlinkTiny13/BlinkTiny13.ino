@@ -30,7 +30,7 @@ void setup() {
 }
 
 void loop() {
-  int a = realAnalogRead(ADC2);
+  int a = realAnalogRead(ADC2)*1000;
   int b = realAnalogRead(ADC1);
   //
   //a = a==0?1:a;
@@ -43,9 +43,9 @@ void loop() {
   //analogWrite(PWM0, pwm);
   
   digitalWrite(DIGITAL3, HIGH);
-  delay(a*duty/100);
+  delayMicroseconds(a*duty/100);
   digitalWrite(DIGITAL3, LOW);
-  delay(a*(100-duty)/100);
+  delayMicroseconds(a*(100-duty)/100);
 }
 
 // Select ADC Channel ch must be 0-7
